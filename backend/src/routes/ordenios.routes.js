@@ -1,13 +1,16 @@
 const { Router } = require('express');
-const { getAllOrdenios, getOrdenio, createOrdenio, deleteOrdenio, updateOrdenio } = require('../controllers/ordenios.controller');
+const { getAllOrdenios, getOrdeniosPorSesion, getSesionesOrdenio, createOrdenio, createSesionOrdenio, deleteOrdenio, updateOrdenio } = require('../controllers/ordenios.controller');
 
 const router = Router();
 
 // Usa rutas más limpias
 router.get('/', getAllOrdenios);
-router.get('/:id', getOrdenio);
+// router.get('/:id', getOrdenio);
+router.get('/sesion/:idsesionordeno', getOrdeniosPorSesion);
+router.get('/sesion', getSesionesOrdenio);
 router.post('/', createOrdenio);
-router.delete('/:id', deleteOrdenio); // mejor con ID
-router.put('/:id', updateOrdenio);    // mejor con ID
+router.post('/sesion', createSesionOrdenio);
+router.delete('/:id', deleteOrdenio); 
+router.put('/:id', updateOrdenio);    
 
 module.exports = router;

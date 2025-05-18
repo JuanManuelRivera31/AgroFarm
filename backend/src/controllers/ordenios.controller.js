@@ -10,22 +10,19 @@ const getAllOrdenios = async (req, res) => {
 }
 
 
-const getOrdenio = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await pool.query("SELECT * FROM ordenios WHERE id = $1", [id])
-
-        if (result.rows.length === 0) 
-            return res.status(404).json({
-                message: 'Ordenio not found'
-            })
-            res.json(result.rows[0]);
-
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
+const getOrdeniosPorSesion = async (req, res) => {
+  const { idsesionordeno } = req.params;
+  try {
+    const response = await pool.query(
+      'SELECT * FROM produccion.vaca_ordeno WHERE idsesionordeno = $1',
+      [idsesionordeno]
+    );
+    res.json(response.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener ordeños de la sesión' });
+  }
+};
 
 const createOrdenio = async (req, res) => {
     const { idvaca, idsesionordeno, cantidadleche, hora, observaciones } = req.body;
@@ -44,6 +41,33 @@ const createOrdenio = async (req, res) => {
     }
 };
 
+const createSesionOrdenio = async (req, res) => {
+    const { idusuario, horainicio, horafin, observaciones } = req.body;
+
+    try {
+        const result = await pool.query(
+            `INSERT INTO produccion.sesion_ordeno (idusuario, horainicio, horafin, observaciones)
+             VALUES ($1, $2, $3, $4) RETURNING *`,
+            [idusuario, horainicio, horafin, observaciones]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error("Error al crear la sesión de ordeño:", error);
+        res.status(500).json({ error: "Ocurrió un error al registrar la sesión de ordeño." });
+    }
+};
+
+const getSesionesOrdenio = async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM produccion.sesion_ordeno');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error al obtener sesiones de ordeño:', error);
+    res.status(500).json({ error: 'Error al obtener sesiones de ordeño.' });
+  }
+};
+
     const updateOrdenio = (req, res) => {
         res.send('PUT Ordenio');
     }
@@ -54,8 +78,10 @@ const createOrdenio = async (req, res) => {
 
     module.exports = {
         getAllOrdenios,
-        getOrdenio,
+        getOrdeniosPorSesion,
+        getSesionesOrdenio,
         createOrdenio,
+        createSesionOrdenio,
         updateOrdenio,
         deleteOrdenio
     }
