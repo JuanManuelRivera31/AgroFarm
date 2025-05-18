@@ -28,19 +28,21 @@ const getOrdenio = async (req, res) => {
     }
 
 const createOrdenio = async (req, res) => {
-        const { id, name } = req.body;
+    const { idvaca, idsesionordeno, cantidadleche, hora, observaciones } = req.body;
 
-        try {
-            const result = await pool.query(
-                "INSERT INTO ordenios (id, name) VALUES ($1, $2) RETURNING *",
-                [id, name]
-            );
+    try {
+        const result = await pool.query(
+            `INSERT INTO produccion.vaca_ordeno (idvaca, idsesionordeno, cantidadleche, hora, observaciones)
+             VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+            [idvaca, idsesionordeno, cantidadleche, hora, observaciones]
+        );
 
-            res.json(result.rows[0]);
-        } catch (error) {
-            res.send({ error: error.message });
-        }
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error("Error al crear el ordeño:", error);
+        res.status(500).json({ error: "Ocurrió un error al registrar el ordeño." });
     }
+};
 
     const updateOrdenio = (req, res) => {
         res.send('PUT Ordenio');
