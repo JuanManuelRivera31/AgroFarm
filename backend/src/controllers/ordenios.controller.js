@@ -68,6 +68,29 @@ const getSesionesOrdenio = async (req, res) => {
   }
 };
 
+const procesarSesionOrdeno = async (req, res) => {
+  try {
+    const { idsesionordeno, idinventario } = req.body;
+
+    if (!idsesionordeno || !idinventario) {
+      return res.status(400).json({ error: 'Faltan parámetros obligatorios' });
+    }
+
+    await pool.query(
+      'CALL produccion.procesar_sesion_ordeno($1, $2)',
+      [parseInt(idsesionordeno), parseInt(idinventario)]
+    );
+
+    res.status(200).json({
+      message: `Sesión ${idsesionordeno} procesada exitosamente y agregada al inventario ${idinventario}`
+    });
+
+  } catch (error) {
+    console.error('❌ Error al procesar sesión de ordeño:', error);
+    res.status(500).json({ error: error.message || 'Error interno' });
+  }
+};
+
     const updateOrdenio = (req, res) => {
         res.send('PUT Ordenio');
     }
@@ -82,6 +105,7 @@ const getSesionesOrdenio = async (req, res) => {
         getSesionesOrdenio,
         createOrdenio,
         createSesionOrdenio,
+        procesarSesionOrdeno,
         updateOrdenio,
         deleteOrdenio
     }

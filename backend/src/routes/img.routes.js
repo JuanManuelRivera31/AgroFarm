@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/upload');
-const imageController = require('../controllers/imageController');
+const imageController = require('../controllers/img.controller');
 
 // POST /api/images/upload
 // Sube una imagen para una vaca

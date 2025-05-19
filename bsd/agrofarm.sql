@@ -1004,3 +1004,49 @@ CALL comercial.registrar_venta_leche(
 select * from inventario.inventario_leche where idinventario = 2;
 
 select * from comercial.factura;
+
+
+CREATE OR REPLACE FUNCTION produccion.sp_insertar_vaca(
+    p_nombre VARCHAR,
+    p_fechanacimiento DATE,
+    p_idraza INT,
+    p_descripcion TEXT
+)
+RETURNS INT AS $$
+DECLARE
+    v_idvaca INT;
+BEGIN
+    INSERT INTO produccion.vaca (nombrevaca, fechanacimiento, idraza, descripcion)
+    VALUES (p_nombre, p_fechanacimiento, p_idraza, p_descripcion)
+    RETURNING idvaca INTO v_idvaca;
+
+    RETURN v_idvaca;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE VIEW inventario.vista_inventarios AS
+SELECT
+  il.idinventario,
+  il.fechainicio,
+  il.cantidaddisponible,
+  il.estado,
+  il.ultimaactualizacion,
+  il.idsesionordeno
+FROM inventario.inventario_leche il
+ORDER BY il.fechainicio DESC, il.idinventario;
+
+
+CREATE VIEW comercial.vw_ventas_leche AS
+SELECT
+  v.idventa,
+  v.idcliente,
+  v.fechaventa,
+  v.cantidadlitros,
+  v.idinventario,
+  t.nombretipoentrega,
+  p.preciolitro,
+  ROUND(v.cantidadlitros * p.preciolitro, 2) AS total
+FROM comercial.venta_leche v
+JOIN comercial.tipo_entrega t ON v.idtipoentrega = t.idtipoentrega
+JOIN comercial.precio_litro p ON v.idpreciolitro = p.idpreciolitro;
